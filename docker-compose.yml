@@ -1,0 +1,18 @@
+services:
+  app:
+    build: .
+    ports: ["8080:8080"]
+    environment:
+      - QWEN_API_KEY=${QWEN_API_KEY}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/rag_db
+      - SPRING_REDIS_HOST=redis
+    depends_on: [db, redis]
+
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: rag_db
+
+  redis:
+    image: redis:7-alpine
