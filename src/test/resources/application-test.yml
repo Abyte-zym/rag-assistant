@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:rag_test
+    driver-class-name: org.h2.Driver
+  jpa.hibernate.ddl-auto: create-drop
+
+ai:
+  api-key: test-key
+  base-url: http://localhost:9999/mock
+  model: qwen-turbo
