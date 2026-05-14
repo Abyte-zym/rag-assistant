@@ -1,38 +1,39 @@
 package com.zhangyanming.rag.controller;
 
+import com.zhangyanming.rag.common.R;
 import com.zhangyanming.rag.entity.Document;
 import com.zhangyanming.rag.service.AIService;
 import com.zhangyanming.rag.service.DocumentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 
+/**
+ * RAG智能知识库 — REST接口
+ * 统一使用 R<T> 响应格式，对标企业级API规范
+ */
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class ChatController {
 
-    @Autowired private AIService aiService;
-    @Autowired private DocumentService docService;
+    private final AIService aiService;
+    private final DocumentService docService;
 
     /** RAG增强问答 */
     @PostMapping("/chat/rag")
-    public Map<String, Object> chatRAG(@RequestBody Map<String, String> req) {
+    public R<Map<String, Object>> chatRAG(@RequestBody Map<String, String> req) {
         String question = req.get("question");
         List<String> docs = docService.searchRelevant(question);
         String reply = aiService.chatWithDocs(question, docs);
-        return Map.of("reply", reply, "sources", docs.size());
+        return R.ok(Map.of("reply", reply, "sources", docs.size()));
     }
 
     /** 上传文档 */
     @PostMapping("/documents")
-    public Map<String, Object> upload(@RequestParam("file") MultipartFile file) {
-        try {
-            Document doc = docService.upload(file);
-            return Map.of("success", true, "docId", doc.getId(),
-                         "fileName", doc.getFileName());
-        } catch (Exception e) {
-            return Map.of("success", false, "error", e.getMessage());
-        }
+    public R<Map<String, Object>> upload(@RequestParam("file") MultipartFile file) {
+        Document doc = docService.upload(file);
+        return R.ok(Map.of("docId", doc.getId(), "fileName", doc.getFileName()));
     }
 }
